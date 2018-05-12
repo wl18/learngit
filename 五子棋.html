@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>五子棋</title>
+	</head>
+	<body>
+		<canvas id="canvas" width="400" height="400"></canvas>
+		<!--引用jQuery库，实现鼠标交互-->
+		<script src="jquery-1.4.1.js"></script>
+		<!--绘制出五子棋棋盘-->
+		<script>
+			var canv=document.getElementById("canvas");
+			var ctx=canv.getContext("2d");
+			var blorwh=0;
+			var matrix=[
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],		//定义一个19*19的数组
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+			];
+			ctx.beginPath();
+			for(var i=0;i<19;i++)
+			{
+				ctx.moveTo(10+i*20,10);
+				ctx.lineTo(10+i*20,370);
+				ctx.moveTo(10,10+i*20);
+				ctx.lineTo(370,10+i*20);
+			}
+			ctx.stroke();//用于显示画的线条
+			//鼠标点击，事件发生
+			$("#canvas").click(function(event)
+			{
+				console.log(event.offsetX,event.offsetY);//获取鼠标点击处的x坐标
+				
+				var arcPosX,arcPosY;
+				var mtxPosX,mtxPosY;
+				for(var x=0;x<19;x++)    //用于让棋子落在横竖两条线的交叉点上
+				{
+					if((Math.abs(event.offsetX-(10+x*20)))<10){
+						arcPosX=10+x*20;
+						mtxPosX=x;
+					}
+					if((Math.abs(event.offsetY-(10+x*20)))<10){
+						arcPosY=10+x*20;
+						mtxPosY=x;
+					}
+				}
+				if(matrix[mtxPosX][mtxPosY]==0){					//等于0表示还没有落子
+					blorwh=!blorwh;
+					ctx.beginPath();
+					if(blorwh){
+						ctx.fillStyle="blue";
+						ctx.arc(arcPosX,arcPosY,10,0,Math.PI*2,false);//因为格子的大小为20*20，所以棋子半径设为10
+						matrix[mtxPosX][mtxPosY]=1;				//落黑子后其值为1
+					}
+					else{
+						ctx.fillStyle="white";
+						ctx.arc(arcPosX,arcPosY,10,0,Math.PI*2,false);
+						ctx.stroke();//这里的作用是为白字加一个框
+						matrix[mtxPosX][mtxPosY]=2;				//落白子后其值为2
+					}
+					ctx.fill();
+				}
+				//判断五子是否相连
+				if(matrix[mtxPosX-1][mtxPosY]==matrix[mtxPosX][mtxPosY]){
+					if(matrix[mtxPosX-2][mtxPosY]==matrix[mtxPosX][mtxPosY]){
+						if(matrix[mtxPosX-3][mtxPosY]==matrix[mtxPosX][mtxPosY]){
+							if(matrix[mtxPosX-4][mtxPosY]==matrix[mtxPosX][mtxPosY]){
+								winFlag=1;
+							}else{
+								if(matrix[mtxPosX+1][mtxPosY]!=matrix[mtxPosX][mtxPosY]){
+									winFlag=0;
+								}else{
+									winFlag=1;
+								}
+							}
+						}else{
+							for(var w=0;w<2;w++)
+							{
+								if(matrix[mtxPosX+w+1][mtxPosY]!=matrix[mtxPosX][mtxPosY]){
+									winFlag=0;
+									break;
+								}else{
+									winFlag=1;
+								}
+							}
+						}
+					}else{
+						for(var w=0;w<3;w++)
+						{
+							if(matrix[mtxPosX+w+1][mtxPosY]!=matrix[mtxPosX][mtxPosY]){
+								winFlag=0;
+								break;
+							}else{
+								winFlag=1;
+							}
+						}
+					}
+				}else{
+					for(var w=0;w<4;w++)
+					{
+						if(matrix[mtxPosX+w+1][mtxPosY]!=matrix[mtxPosX][mtxPosY]){
+							winFlag=0;
+							break;
+						}else{
+							winFlag=1;
+						}
+					}
+				}
+				if(winFlag==1){
+					if(blorwh)
+						alert("black win !! refresh to restart!");
+					else
+						alert("white win !! refresh to restart!");
+				}
+			});
+		</script>
+	</body>
+</html>
+
+<!--一些功能可以写成一个函数，从而使鼠标事件处理的代码会更加简洁-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
